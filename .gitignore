@@ -57,11 +57,13 @@ typings/
 # dotenv environment variables file
 .env
 
-# Mongo db files
-*.wt
-
-#DATA
+# MongoDB Datas
 data/
 
-#vsCode
+### VisualStudioCode ###
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history
