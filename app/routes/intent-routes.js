@@ -11,13 +11,13 @@ module.exports = function (app, db) {
             if (err) 
                 res.send({ 'error': 'An error has occurred' });
             else 
-                res.send(item);
+                res.send(JSON.stringify(item));
           });
     });
 
     app.post('/intent', (req, res) => {
-        const intent = { intent: req.body.intent, keywords: req.body.keyword };
-        db.collection('intent').insert(intent, (err, result) => {
+        const intentDto = { intent: req.body.intent, keywords: req.body.keyword };
+        db.collection('intent').insert(intentDto, (err, result) => {
             if (err) 
             {
                 res.send({ 'error': 'An error has occurred' });
