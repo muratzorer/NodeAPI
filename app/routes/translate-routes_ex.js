@@ -7,20 +7,41 @@ const cognitiveServices = require('cognitive-services');
 Promise.promisifyAll(translate);
 
 module.exports = function (app, db) {
-    app.get('/translate', translateTurkishToEnglish);
+    app.get('/translate', (req, res) => {
+        const oid = require('mongodb').ObjectId;
+        var query = { intent: "change password" };
+        var o_id = new oid("59de213694829e5420b71b7b");
 
-    function translateTurkishToEnglish(req, res) {
-        translateService(req.query.text, req.query.vendor)
-        .then((response) => {
-            res.send(unescapeIfYandex(req.query.vendor, response));
+        db.collection("intent").find(query).toArray((err, item) => {
+            if (err)
+                res.send({ 'error': 'An error has occurred' });
+            else
+                res.send(JSON.stringify(item));
+        });
+    });
+
+    app.post('/translate/:vendor', (req, res) => {
+        const vendor = req.params.vendor;
+
+        translateService(req.body.text, vendor)
+        .then((res) => {
+            const translateDto = { textBeforeTranslate: req.body.text, textAfterTranslate: unescapeIfYandex(vendor, res), vendor: req.params.vendor, language: req.params.language };
+            return db.collection('translate').insert(translateDto);
+        })
+        .then((result) => {
+            res.send(result.ops[0]);
         })
         .catch((err) => {
             res.send({ 'error': 'An error has occurred' });
         });
+    });
 
-        // translateService(req.query.text, req.query.vendor, (err, response) => {
-        //     res.send(unescapeIfYandex(req.query.vendor, response));
-        // });
+    app.get('/translate', translateFromTurkishToEnglish);
+
+    function translateFromTurkishToEnglish(req, res) {
+        const response = translateService(req.query.text, req.query.vendor);
+        
+        return unescapeIfYandex(vendor, response);
     }
 };
 
